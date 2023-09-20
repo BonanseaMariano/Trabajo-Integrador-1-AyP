@@ -11,8 +11,8 @@
     <u>Alumnos:</u><br>
     Andres, Ariel Sebastian.<br>
     Bonansea Camaño, Mariano Nicolas.<br>
+    Cordoba, Luis.<br>
     Rivero, Lucia Jazmin.<br>
-    Luis.<br>
 </center>
 
 <br>
