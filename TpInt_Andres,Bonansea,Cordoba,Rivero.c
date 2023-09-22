@@ -40,6 +40,7 @@ int main(){
     //desplazar a los otros o no (Parecido al problema que hay con el Ej7Tp2)
     struct Jugador jugador;
     struct Jugador leaderboard[JUGADORES_MAX];
+    limpieza_leaderboard(leaderboard);
 
     int op = 1; // Variable de opcion para saber si quiere jugar denuevo o no
 
@@ -69,12 +70,14 @@ int main(){
         do
         {
             printf("\tFin del juego, desea jugar denuevo (0:No/1:Si)");
-            scanf("%i",op);
-        } while (op!=1||op!=0); //Validacion que unicamente pueda poner si o no
+            scanf("%i",&op);
+        } while (op!=1 && op!=0); //Validacion que unicamente pueda poner si o no
 
-    } while (op!=0); //Si quiere jugar denuevo itera
+    } while (op==1); //Si quiere jugar denuevo itera
 
     printf("\t---- FIN DEL JUEGO, GRACIAS POR JUGAR! ----\n");
+    sleep(3);
+    system("exit");
     return 0;
 }
 
@@ -84,7 +87,7 @@ void cargar_jugador(struct Jugador *jugador){
     char auxchar[30];
     //Es posible la validacion si se quiere
     printf("Ingresa tu nombre!:\n");
-    scanf("%[^\n]s",auxchar);
+    scanf(" %[^\n]s",auxchar);
 
     strcpy(jugador->nombre, auxchar);
     saludo_e_instrucciones(auxchar);
@@ -115,7 +118,9 @@ int juego_principal(struct Jugador *jugador){
     do
     {
         input_y_separar_cifras(numeroInput); //Parametros por referencia
+        impresion_arreglo_numero(numeroInput);
 
+        printf("Acierto: %i\n",acierto_completo(numeroInput, numeroAdivinar));
         if (acierto_completo(numeroInput, numeroAdivinar)==0) //Le pego al numero
         {
             printf("\tFelicitaciones, acertaste al numero: ");
@@ -129,6 +134,9 @@ int juego_principal(struct Jugador *jugador){
             //acierto_parcial(numeroAdivinar,numeroInput);
 
             jugador->intentos--;
+            printf("No era el numero\n");
+            impresion_arreglo_numero(numeroAdivinar);
+            printf("\n");
         }
     } while (jugador->intentos>0);
 
@@ -147,15 +155,17 @@ void input_y_separar_cifras(int *numeroInput){
     do
     {
         i = 0; //Inicializo contador de cifras para validacion
+        int j=(CIFRAS_NUM-1);
         printf("Ingrese un entero de exactamente 5 cifras:\n");
         scanf("%d", &num);
 
         temp = num;
 
         while (temp != 0) {
-            arr[i] = temp % 10;
+            arr[j] = temp % 10;
             temp /= 10;
             i++;
+            j--;
         }
 
         if (i != CIFRAS_NUM) {
@@ -193,6 +203,15 @@ void impresion_arreglo_numero(int *arregloNum){
     for (int i = 0; i < CIFRAS_NUM; i++)
     {
         printf("%i", arregloNum[i]);
+    }
+}
+
+//--------------------------------LIMPIAR  (LLAMADA POR main)----------------------------
+void limpieza_leaderboard(struct Jugador *leaderboard){
+    for (int i = 0; i < JUGADORES_MAX; i++)
+    {
+        strcpy(leaderboard[i].nombre, "");
+        leaderboard[i].intentos = INTENTOS_MAX;
     }
 }
 
@@ -234,4 +253,3 @@ void impresion_ranking(struct Jugador *leaderboard){
         }
     }
 }
-
