@@ -26,8 +26,9 @@ void acierto_parcial(int *numeroAdivinar, int *numeroInput);
 
 void impresion_arreglo_numero(int *arregloNum);
 
-void altualizar_ranking(struct Jugador *jugador,struct Jugador *jugadores); //Aca va a haber que pasarle como parametros el jugador y el arreglo de jugadores
-void impresion_ranking(struct Jugador *jugadores);//Aca va a haber que pasarle como parametro el arreglo de jugadores (el parametro esta mal puesto todavia)
+void limpieza_leaderboard(struct Jugador *leaderboard);
+void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard); //Aca va a haber que pasarle como parametros el jugador y el arreglo de jugadores
+void impresion_ranking(struct Jugador *leaderboard);//Aca va a haber que pasarle como parametro el arreglo de jugadores (el parametro esta mal puesto todavia)
 
 
 //------------------------------MAIN-------------------------------
@@ -38,7 +39,8 @@ int main(){
     //tener en cuenta lo de como vamos a acomodar el arreglo cuando entra un puntaje nuevo que debe
     //desplazar a los otros o no (Parecido al problema que hay con el Ej7Tp2)
     struct Jugador jugador;
-    
+    struct Jugador leaderboard[JUGADORES_MAX];
+
     int op = 1; // Variable de opcion para saber si quiere jugar denuevo o no
 
     //Iterador de juego (Si juega nuevamente o no)
@@ -54,13 +56,16 @@ int main(){
             //Hay que hacer la cuenta INTENTOS_MAX - jugador.intentos para saber cuantos intentos utilizo, ya que es distinto de los intentos restantes
             jugador.intentos = INTENTOS_MAX - jugador.intentos;
             
-            //altualizar_ranking();
+            //Actualizo ranking
+            altualizar_ranking(&jugador,leaderboard);
         }
         
         printf("\t---- FIN DE LA PARTIDA ----\n");
         printf("\tRANKING DE JUGADORES:\n");
-        //impresion_ranking();
-
+        
+        //Impprimo el ranking
+        impresion_ranking(leaderboard);
+        
         do
         {
             printf("\tFin del juego, desea jugar denuevo (0:No/1:Si)");
@@ -192,11 +197,41 @@ void impresion_arreglo_numero(int *arregloNum){
 }
 
 //--------------------------------ACTUALIZAR RANKING (LLAMADA POR main)----------------------------
-void altualizar_ranking(struct Jugador *jugador,struct Jugador *jugadores){
+void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
+    int i;
+    
+    //Busco la posicion del ranking en donde debo colocar
+    //Podria cambiar el i=0 por i=1 y dejar la posicion 0 como basura (hay que cambiar a todos los for que usen el arreglo)
+    for ( i = 0; i < JUGADORES_MAX && jugador->intentos>leaderboard[i].intentos; i++);
 
+    //Si se encuentra dentro de las primeras 10 posiciones acomodo a los demas para ponerlo
+    if (i<JUGADORES_MAX)
+    {
+        //Desplazo a la derecha
+        for (int j = JUGADORES_MAX-1; j > i; j--)
+        {
+            //leaderboard[j] = leaderboard[j-1];
+            leaderboard[j].intentos = leaderboard[j-1].intentos;
+            strcpy(leaderboard[j].nombre, leaderboard[j-1].nombre);
+        }
+
+        //Coloco el jugador en la posicion que quedo
+        //creo que la asignacion de structs se tiene que hacer elemento a elemento
+        leaderboard[i].intentos = jugador->intentos;
+        strcpy(leaderboard[i].nombre, jugador->nombre);
+    }
+    
 }
 
 //--------------------------------IMPRESION RANKING (LLAMADA POR main)----------------------------
-void impresion_ranking(struct Jugador *jugadores){
-    
+void impresion_ranking(struct Jugador *leaderboard){
+    printf("\n\t----- RANKING DE JUGADORES -----\n");
+    for (int i = 0; i < JUGADORES_MAX; i++)
+    {
+        if (leaderboard[i].nombre != "")
+        {
+            printf("%i* - %s (%i intentos)\n",(i+1), leaderboard[i].nombre, leaderboard[i].intentos); 
+        }
+    }
 }
+
