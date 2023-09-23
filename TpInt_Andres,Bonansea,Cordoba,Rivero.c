@@ -24,25 +24,31 @@ struct Jugador
     int intentos;
 };
 
+
 //----------------------------DECLARACION DE FUNCIONES---------------------------------
+//Funciones de inicio del juego
 void cargar_jugador(struct Jugador *jugador);
 void saludo_e_instrucciones(char nombre[30]);
 void generador_numero_random(int *numeroAdivinar);
+
+//Funciones durante el juego
 int juego_principal(struct Jugador *jugador);
 void input_y_separar_cifras(int *numeroInput);
 
-void setColor(int color);
-
 //Funciones de acierto
 int acierto_completo(int *numeroAdivinar, int *numeroInput);
-void num_iguales(int *input, int *numObjetivo);
-void num_incluido(int *numObjetivo, int *input, int *posicion);
+void acierto_num_iguales(int *input, int *numObjetivo);
+void acierto_num_incluido(int *numObjetivo, int *input, int *posicion);
 
-void impresion_arreglo_numero(int *arregloNum);
-
+//Funciones del raking de jugadores
 void limpieza_leaderboard(struct Jugador *leaderboard);
 void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard); //Aca va a haber que pasarle como parametros el jugador y el arreglo de jugadores
 void impresion_ranking(struct Jugador *leaderboard);//Aca va a haber que pasarle como parametro el arreglo de jugadores (el parametro esta mal puesto todavia)
+
+//Funciones extras
+void impresion_arreglo_numero(int *arregloNum);
+void setColor(int color);
+
 
 
 //------------------------------MAIN-------------------------------
@@ -104,13 +110,12 @@ int main(){
 //------------------------------CARGAR JUGADOR (LLAMADA POR main)-------------------------------
 void cargar_jugador(struct Jugador *jugador){
     char auxchar[30];
-    //Es posible la validacion si se quiere
     printf("\n\nIngresa tu nombre!:\n");
     scanf(" %[^\n]s",auxchar);
-
     strcpy(jugador->nombre, auxchar);
     saludo_e_instrucciones(auxchar);
 }
+
 
 //----------------------------------SALUDO E INSTRUCCIONES (LLAMADA POR cargar_jugador)-----------------------------
 void saludo_e_instrucciones(char nombre[30]){
@@ -118,50 +123,50 @@ void saludo_e_instrucciones(char nombre[30]){
     printf("Tendras %d intentos para poder decifrar un numero de %d cifras ingresando de a %d cifras, buena suerte!\n",INTENTOS_MAX,CIFRAS_NUM,CIFRAS_NUM);
 }
 
+
 //---------------------------GENERADOR NUMERO RANDOM A ADIVINAR (LLAMADA POR juego_principal)----------------------------------
 void generador_numero_random(int *numeroAdivinar){
-    for (int i = 0; i < CIFRAS_NUM; i++)
+
+    //Para que la primera cifra del numero a adivinar no comience con 0
+    numeroAdivinar[0] = (rand()%9)+1;
+
+    //Resto del numero a adivinar
+    for (int i = 1; i < CIFRAS_NUM; i++)
     {
-        //Para que la primera cifra del numero a adivinar no comience con 0
-        if (i == 0)
-        {
-            numeroAdivinar[i] = (rand() % 9)+1;
-        }
-        //Resto del numero a adivinar
         numeroAdivinar[i] = rand() % 10;
     }
 }
+
 
 //---------------------------PARTE PRINCIPAL DEL JUEGO (LLAMADA POR main)---------------------------------
 int juego_principal(struct Jugador *jugador){
     jugador->intentos =  INTENTOS_MAX; //Inicializo los intentos
     int numeroAdivinar[CIFRAS_NUM]; //Arrglo del numero a adivinar
-    generador_numero_random(numeroAdivinar); //Parametros por referencia, Inicializo el numero random a adivinar
+    generador_numero_random(numeroAdivinar); //Inicializo el numero random a adivinar
     int numeroInput[CIFRAS_NUM]; //Arrglo del numero ingresado por el usuario para cada intento
     
     //Se repite mientras el jugador tenga intentos disponibles o acierte al numero a adivinar
     do
     {
-        input_y_separar_cifras(numeroInput); //Parametros por referencia
+        input_y_separar_cifras(numeroInput);
 
-        if (acierto_completo(numeroInput, numeroAdivinar)==0) //Le pego al numero
+        if (acierto_completo(numeroInput, numeroAdivinar)==0) //Acerto al numero
         {
             setColor(COLOR_VERDE);
             printf("\n\tFelicitaciones, acertaste al numero: ");
             impresion_arreglo_numero(numeroAdivinar);
-            printf("!\n\t\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos)); //Hay que hacer la cuenta INTENTOS_MAX - jugador->intentos para saber cuantos intentos utilizo, ya que es distinto de los intentos restantes
+            printf("!\n\t\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos)); 
             setColor(COLOR_BLANCO);
 
             return 1;//El jugador gano
 
-        }else{ //No le pego al numero todavia
+        }else{ //No acerto al numero todavia
             jugador->intentos--;
             setColor(COLOR_ROJO);
             printf("\tX No era el numero, intentos restantes: %d  X\n",jugador->intentos);
             setColor(COLOR_BLANCO);
 
-            num_iguales(numeroInput,numeroAdivinar);
-
+            acierto_num_iguales(numeroInput,numeroAdivinar);
             
             setColor(COLOR_CELESTE);
             printf("\n//Cheat de numero a adivinar: ");
@@ -172,7 +177,7 @@ int juego_principal(struct Jugador *jugador){
         }
     } while (jugador->intentos>0);
 
-    //Aca ya es que se le acabaron los intentos
+    //Se acabaron los intentos del jugador
     setColor(COLOR_ROJO);
     printf("\tMala suerte, perdiste! :( el numero a adivinar era: ");
     impresion_arreglo_numero(numeroAdivinar);
@@ -180,6 +185,7 @@ int juego_principal(struct Jugador *jugador){
     printf("\n");
     return 0; //El jugador perdio
 }
+
 
 //--------------------------------INPUT Y SEPARAR CIFRAS (LLAMADA POR juego_principal)----------------------------
 void input_y_separar_cifras(int *numeroInput){
@@ -189,7 +195,7 @@ void input_y_separar_cifras(int *numeroInput){
     do
     {
         i = 0; //Inicializo contador de cifras para validacion
-        int j=(CIFRAS_NUM-1);
+        int j=(CIFRAS_NUM-1); //Inicializo contador de ubicacion de digitos
         printf("\nIngrese un entero de exactamente 5 cifras:\n");
         scanf("%d", &num);
 
@@ -213,6 +219,7 @@ void input_y_separar_cifras(int *numeroInput){
     memcpy(numeroInput, arr, CIFRAS_NUM * sizeof(int));
 }
 
+
 //--------------------------------ACIERTO COMPLETO (LLAMADA POR juego_principal)----------------------------
 int acierto_completo(int *numeroAdivinar, int *numeroInput){
     //Comparacion principal (acierto del numero completo)
@@ -228,42 +235,50 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 
 
 //--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
-void num_iguales(int *input, int *numObjetivo)
+void acierto_num_iguales(int *input, int *numObjetivo)
 {
     int posiciones[CIFRAS_NUM];
+    
+    //Inicializo el arreglo de posiciones
     for (int i = 0; i < CIFRAS_NUM; i++){
         posiciones[i] = -1;
     }
+
+    //Impresion de ambos numeros para checkear (Borrar desp)
+    printf("\nDebugg:\n");
     impresion_arreglo_numero(input);
     printf("\n");
     impresion_arreglo_numero(numObjetivo);
     printf("\n");
+
     for (int i = 0; i < CIFRAS_NUM; i++)
     {
+        //Checkeo si hay digitos en posiciones correctas
         if (input[i] == numObjetivo[i])
         {
-            printf("%i es igual a %i \n", input[i], numObjetivo[i] );
-                setColor(COLOR_VERDE);
-                printf("esta correcto:  %d\n",input[i]);
-                setColor(COLOR_BLANCO);
-            
-        }else {if(input[i] != numObjetivo[i]){
-            for (int j = 0; j < CIFRAS_NUM; j++){ //o es un while?
-                if (posiciones[j] == -1){
-                    posiciones[j] = i;
-                    printf("posicion distinta:%d\n", posiciones[j]);
-                    break;
+            setColor(COLOR_VERDE);
+            printf("El digito %d (%d* posicion) es correcto!\n",input[i],(i+1));
+            setColor(COLOR_BLANCO);
+        
+        //Chequeo si el digito existe pero esta ubicado en otra posicion    
+        }else{
+            if(input[i] != numObjetivo[i]){
+                for (int j = 0; j < CIFRAS_NUM; j++){ //o es un while?
+                    if (posiciones[j] == -1){
+                        posiciones[j] = i;
+                        printf("posicion distinta:%d\n", posiciones[j]);
+                        break;
+                    }
                 }
             }
         }
-        }
     }
-    num_incluido(input, numObjetivo, posiciones);
+    acierto_num_incluido(input, numObjetivo, posiciones);
 }
 
 
 //--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
-void num_incluido(int *input, int *numObjetivo, int *posicion){
+void acierto_num_incluido(int *input, int *numObjetivo, int *posicion){
     int i = 0;
     while(posicion[i] != -1 && i < CIFRAS_NUM){
         printf("entro en num_incluido");
@@ -293,6 +308,7 @@ void impresion_arreglo_numero(int *arregloNum){
     }
 }
 
+
 //--------------------------------LIMPIAR  (LLAMADA POR main)----------------------------
 void limpieza_leaderboard(struct Jugador *leaderboard){
     for (int i = 0; i < JUGADORES_MAX; i++)
@@ -302,12 +318,12 @@ void limpieza_leaderboard(struct Jugador *leaderboard){
     }
 }
 
+
 //--------------------------------ACTUALIZAR RANKING (LLAMADA POR main)----------------------------
 void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
     int i;
     
     //Busco la posicion del ranking en donde debo colocar
-    //Podria cambiar el i=0 por i=1 y dejar la posicion 0 como basura (hay que cambiar a todos los for que usen el arreglo)
     for ( i = 0; i < JUGADORES_MAX && jugador->intentos>leaderboard[i].intentos; i++);
 
     //Si se encuentra dentro de las primeras 10 posiciones acomodo a los demas para ponerlo
@@ -316,18 +332,17 @@ void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
         //Desplazo a la derecha
         for (int j = JUGADORES_MAX-1; j > i; j--)
         {
-            //leaderboard[j] = leaderboard[j-1];
             leaderboard[j].intentos = leaderboard[j-1].intentos;
             strcpy(leaderboard[j].nombre, leaderboard[j-1].nombre);
         }
 
         //Coloco el jugador en la posicion que quedo
-        //creo que la asignacion de structs se tiene que hacer elemento a elemento
         leaderboard[i].intentos = jugador->intentos;
         strcpy(leaderboard[i].nombre, jugador->nombre);
     }
     
 }
+
 
 //--------------------------------IMPRESION RANKING (LLAMADA POR main)----------------------------
 void impresion_ranking(struct Jugador *leaderboard){
