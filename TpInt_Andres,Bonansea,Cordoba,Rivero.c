@@ -5,6 +5,7 @@
 #include <windows.h>
 
 //----------------------------CONSTANTES DEFINIDAS---------------------------------
+//Parametros modificables del juego
 #define JUGADORES_MAX 10
 #define INTENTOS_MAX 10
 #define CIFRAS_NUM 5
@@ -63,7 +64,7 @@ int main(){
         //Titulo del juego
         printf("\t\t");
         setColor('G');
-        printf("**** Adivina el numero! ****\n\n");
+        printf("**** Adivina el numero! ****");
         setColor(COLOR_BLANCO);
 
         //Ingreso del jugador
@@ -89,13 +90,13 @@ int main(){
         do
         {
             printf("\n\t---- Desea jugar denuevo? (0:No/1:Si) ----\n");
-            scanf("%i",&op);
+            scanf("%d",&op);
         } while (op!=1 && op!=0); //Validacion que unicamente pueda poner si o no
 
     } while (op==1); //Si quiere jugar denuevo itera
 
     printf("\n\n\t---- FIN DEL JUEGO, GRACIAS POR JUGAR! ----\n");
-    sleep(3);
+    sleep(5);
     return 0;
 }
 
@@ -104,7 +105,7 @@ int main(){
 void cargar_jugador(struct Jugador *jugador){
     char auxchar[30];
     //Es posible la validacion si se quiere
-    printf("Ingresa tu nombre!:\n");
+    printf("\n\nIngresa tu nombre!:\n");
     scanf(" %[^\n]s",auxchar);
 
     strcpy(jugador->nombre, auxchar);
@@ -121,6 +122,12 @@ void saludo_e_instrucciones(char nombre[30]){
 void generador_numero_random(int *numeroAdivinar){
     for (int i = 0; i < CIFRAS_NUM; i++)
     {
+        //Para que la primera cifra del numero a adivinar no comience con 0
+        if (i == 0)
+        {
+            numeroAdivinar[i] = (rand() % 9)+1;
+        }
+        //Resto del numero a adivinar
         numeroAdivinar[i] = rand() % 10;
     }
 }
@@ -223,15 +230,15 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 //--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
 void num_iguales(int *input, int *numObjetivo)
 {
-    int posiciones[5];
-    for (int i = 0; i < 5; i++){
+    int posiciones[CIFRAS_NUM];
+    for (int i = 0; i < CIFRAS_NUM; i++){
         posiciones[i] = -1;
     }
     impresion_arreglo_numero(input);
     printf("\n");
     impresion_arreglo_numero(numObjetivo);
     printf("\n");
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < CIFRAS_NUM; i++)
     {
         if (input[i] == numObjetivo[i])
         {
@@ -241,7 +248,7 @@ void num_iguales(int *input, int *numObjetivo)
                 setColor(COLOR_BLANCO);
             
         }else {if(input[i] != numObjetivo[i]){
-            for (int j = 0; j < 5; j++){ //o es un while?
+            for (int j = 0; j < CIFRAS_NUM; j++){ //o es un while?
                 if (posiciones[j] == -1){
                     posiciones[j] = i;
                     printf("posicion distinta:%d\n", posiciones[j]);
@@ -258,7 +265,7 @@ void num_iguales(int *input, int *numObjetivo)
 //--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
 void num_incluido(int *input, int *numObjetivo, int *posicion){
     int i = 0;
-    while(posicion[i] != -1 && i < 5){
+    while(posicion[i] != -1 && i < CIFRAS_NUM){
         printf("entro en num_incluido");
         for (int j = 0; j < CIFRAS_NUM; j++)
         {
