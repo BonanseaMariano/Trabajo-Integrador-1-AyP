@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <windows.h>
+#include <time.h>
 
 //----------------------------CONSTANTES DEFINIDAS---------------------------------
 //Parametros modificables del juego
@@ -22,6 +23,7 @@ struct Jugador
 {
     char nombre[30];
     int intentos;
+    double tiempo;
 };
 
 
@@ -140,11 +142,15 @@ void generador_numero_random(int *numeroAdivinar){
 
 //---------------------------PARTE PRINCIPAL DEL JUEGO (LLAMADA POR main)---------------------------------
 int juego_principal(struct Jugador *jugador){
+    jugador->tiempo = 0.0; //Inicializo el tiempo del jugador
     jugador->intentos =  INTENTOS_MAX; //Inicializo los intentos
     int numeroAdivinar[CIFRAS_NUM]; //Arrglo del numero a adivinar
     generador_numero_random(numeroAdivinar); //Inicializo el numero random a adivinar
     int numeroInput[CIFRAS_NUM]; //Arrglo del numero ingresado por el usuario para cada intento
     
+    //Inicio el cronometro
+    clock_t inicio_cronometro = clock();
+
     //Se repite mientras el jugador tenga intentos disponibles o acierte al numero a adivinar
     do
     {
@@ -152,12 +158,18 @@ int juego_principal(struct Jugador *jugador){
 
         if (acierto_completo(numeroInput, numeroAdivinar)==0) //Acerto al numero
         {
+            //Termino el cronometro
+            clock_t fin_cronometro = clock();
+            //Calculo el tiempo y lo guardo
+            jugador->tiempo += (double)(fin_cronometro - inicio_cronometro) / CLOCKS_PER_SEC;
+
             setColor(COLOR_VERDE);
             printf("\n\tFelicitaciones, acertaste al numero: ");
             impresion_arreglo_numero(numeroAdivinar);
-            printf("!\n\t\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos)); 
+            printf("!\n\t\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos));
+            printf("\t\tTiempo total: %.1f segundos\n", jugador->tiempo); 
             setColor(COLOR_BLANCO);
-
+            
             return 1;//El jugador gano
 
         }else{ //No acerto al numero todavia
@@ -315,6 +327,7 @@ void limpieza_leaderboard(struct Jugador *leaderboard){
     {
         strcpy(leaderboard[i].nombre, "");
         leaderboard[i].intentos = INTENTOS_MAX;
+        leaderboard[i].tiempo = 0.0;
     }
 }
 
@@ -334,11 +347,13 @@ void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
         {
             leaderboard[j].intentos = leaderboard[j-1].intentos;
             strcpy(leaderboard[j].nombre, leaderboard[j-1].nombre);
+            leaderboard[j].tiempo = leaderboard[j-1].tiempo;
         }
 
         //Coloco el jugador en la posicion que quedo
         leaderboard[i].intentos = jugador->intentos;
         strcpy(leaderboard[i].nombre, jugador->nombre);
+        leaderboard[i].tiempo = jugador->tiempo;
     }
     
 }
@@ -351,7 +366,7 @@ void impresion_ranking(struct Jugador *leaderboard){
     {
         if (strcmp(leaderboard[i].nombre,"")!=0)
         {
-            printf("%i* - %s (%i intentos)\n",(i+1), leaderboard[i].nombre, leaderboard[i].intentos); 
+            printf("%i* - %s (%i intentos, %.1f segundos)\n",(i+1), leaderboard[i].nombre, leaderboard[i].intentos,leaderboard[i].tiempo); 
         }
     }
 }
