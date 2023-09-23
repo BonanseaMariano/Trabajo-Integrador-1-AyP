@@ -8,9 +8,14 @@
 #define JUGADORES_MAX 10
 #define INTENTOS_MAX 10
 #define CIFRAS_NUM 5
+
 //Colores
 #define COLOR_VERDE 2
 #define COLOR_AMARILLO 14
+#define COLOR_BLANCO 7
+#define COLOR_CELESTE 11
+#define COLOR_ROJO 12
+
 //-------------------------------STRUCTS------------------------------
 struct Jugador
 {
@@ -29,7 +34,6 @@ void setColor(int color);
 
 //Funciones de acierto
 int acierto_completo(int *numeroAdivinar, int *numeroInput);
-void acierto_parcial(int *numeroAdivinar, int *numeroInput);
 void num_iguales(int *input, int *numObjetivo);
 void num_incluido(int *numObjetivo, int *input, int *posicion);
 
@@ -56,6 +60,12 @@ int main(){
     //Iterador de juego (Si juega nuevamente o no)
     do
     {
+        //Titulo del juego
+        printf("\t\t");
+        setColor('G');
+        printf("**** Adivina el numero! ****\n\n");
+        setColor(COLOR_BLANCO);
+
         //Ingreso del jugador
         cargar_jugador(&jugador);
 
@@ -70,23 +80,22 @@ int main(){
             altualizar_ranking(&jugador,leaderboard);
         }
         
-        printf("\t---- FIN DE LA PARTIDA ----\n");
-        printf("\tRANKING DE JUGADORES:\n");
-        
+        setColor(COLOR_AMARILLO);
+        printf("\n\t\t---- FIN DE LA PARTIDA ----\n");
         //Impprimo el ranking
         impresion_ranking(leaderboard);
-        
+        setColor(COLOR_BLANCO);
+
         do
         {
-            printf("\tFin del juego, desea jugar denuevo (0:No/1:Si)");
+            printf("\n\t---- Desea jugar denuevo? (0:No/1:Si) ----\n");
             scanf("%i",&op);
         } while (op!=1 && op!=0); //Validacion que unicamente pueda poner si o no
 
     } while (op==1); //Si quiere jugar denuevo itera
 
-    printf("\t---- FIN DEL JUEGO, GRACIAS POR JUGAR! ----\n");
+    printf("\n\n\t---- FIN DEL JUEGO, GRACIAS POR JUGAR! ----\n");
     sleep(3);
-    system("exit");
     return 0;
 }
 
@@ -95,7 +104,7 @@ int main(){
 void cargar_jugador(struct Jugador *jugador){
     char auxchar[30];
     //Es posible la validacion si se quiere
-    printf("\t\tIngresa tu nombre!:\n");
+    printf("Ingresa tu nombre!:\n");
     scanf(" %[^\n]s",auxchar);
 
     strcpy(jugador->nombre, auxchar);
@@ -104,7 +113,7 @@ void cargar_jugador(struct Jugador *jugador){
 
 //----------------------------------SALUDO E INSTRUCCIONES (LLAMADA POR cargar_jugador)-----------------------------
 void saludo_e_instrucciones(char nombre[30]){
-    printf("\t\tBienvenido %s!\n", nombre);
+    printf("\nBienvenido %s!\n", nombre);
     printf("Tendras %d intentos para poder decifrar un numero de %d cifras ingresando de a %d cifras, buena suerte!\n",INTENTOS_MAX,CIFRAS_NUM,CIFRAS_NUM);
 }
 
@@ -130,28 +139,37 @@ int juego_principal(struct Jugador *jugador){
 
         if (acierto_completo(numeroInput, numeroAdivinar)==0) //Le pego al numero
         {
-            printf("\tFelicitaciones, acertaste al numero: ");
+            setColor(COLOR_VERDE);
+            printf("\n\tFelicitaciones, acertaste al numero: ");
             impresion_arreglo_numero(numeroAdivinar);
-            printf("!\n\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos)); //Hay que hacer la cuenta INTENTOS_MAX - jugador->intentos para saber cuantos intentos utilizo, ya que es distinto de los intentos restantes
+            printf("!\n\t\tCantidad de intentos: %i\n", (INTENTOS_MAX - jugador->intentos)); //Hay que hacer la cuenta INTENTOS_MAX - jugador->intentos para saber cuantos intentos utilizo, ya que es distinto de los intentos restantes
+            setColor(COLOR_BLANCO);
+
             return 1;//El jugador gano
 
         }else{ //No le pego al numero todavia
+            jugador->intentos--;
+            setColor(COLOR_ROJO);
+            printf("\tX No era el numero, intentos restantes: %d  X\n",jugador->intentos);
+            setColor(COLOR_BLANCO);
 
-            //Aca hay que poner una funcion que diga si acerto a algun numero misma posicion o numero pero en distinta posicion *******
-            acierto_parcial(numeroAdivinar,numeroInput);
             num_iguales(numeroInput,numeroAdivinar);
 
-            jugador->intentos--;
-            printf("No era el numero\n");
-            printf("Debugg: ");
+            
+            setColor(COLOR_CELESTE);
+            printf("\n//Cheat de numero a adivinar: ");
             impresion_arreglo_numero(numeroAdivinar);
+            setColor(COLOR_BLANCO);
             printf("\n");
+
         }
     } while (jugador->intentos>0);
 
     //Aca ya es que se le acabaron los intentos
-    printf("\tMala suerte, perdiste! el numero a adivinar era: ");
+    setColor(COLOR_ROJO);
+    printf("\tMala suerte, perdiste! :( el numero a adivinar era: ");
     impresion_arreglo_numero(numeroAdivinar);
+    setColor(COLOR_BLANCO);
     printf("\n");
     return 0; //El jugador perdio
 }
@@ -165,7 +183,7 @@ void input_y_separar_cifras(int *numeroInput){
     {
         i = 0; //Inicializo contador de cifras para validacion
         int j=(CIFRAS_NUM-1);
-        printf("Ingrese un entero de exactamente 5 cifras:\n");
+        printf("\nIngrese un entero de exactamente 5 cifras:\n");
         scanf("%d", &num);
 
         temp = num;
@@ -178,7 +196,9 @@ void input_y_separar_cifras(int *numeroInput){
         }
 
         if (i != CIFRAS_NUM) {
-            printf("El numero ingresado no tiene exactamente 5 cifras, ingrese un numero valido.\n");
+            setColor(COLOR_ROJO);
+            printf("\tXX El numero ingresado no tiene exactamente 5 cifras, ingrese un numero valido XX\n");
+            setColor(COLOR_BLANCO);
         }
     } while (i != CIFRAS_NUM);
     
@@ -199,12 +219,8 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
     return 0;
 }
 
-//--------------------------------ACIERTO PARCIAL (LLAMADA POR juego_principal)----------------------------
-void acierto_parcial(int *numeroAdivinar, int *numeroInput){
-    printf("acierto parcial\n");
-    //Aca hay que ver si acerto a algun numero misma posicion o numero pero en distinta posicion
 
-}
+//--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
 void num_iguales(int *input, int *numObjetivo)
 {
     int posiciones[5];
@@ -222,7 +238,7 @@ void num_iguales(int *input, int *numObjetivo)
             printf("%i es igual a %i \n", input[i], numObjetivo[i] );
                 setColor(COLOR_VERDE);
                 printf("esta correcto:  %d\n",input[i]);
-                setColor(7);
+                setColor(COLOR_BLANCO);
             
         }else {if(input[i] != numObjetivo[i]){
             for (int j = 0; j < 5; j++){ //o es un while?
@@ -237,17 +253,21 @@ void num_iguales(int *input, int *numObjetivo)
     }
     num_incluido(input, numObjetivo, posiciones);
 }
+
+
+//--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
 void num_incluido(int *input, int *numObjetivo, int *posicion){
     int i = 0;
     while(posicion[i] != -1 && i < 5){
         printf("entro en num_incluido");
         for (int j = 0; j < CIFRAS_NUM; j++)
         {
+            //Funca mal
             if (posicion[i] == j)
             {
                 setColor(COLOR_AMARILLO);
                 printf(" que es esto no se %d\n",input[i]);
-                setColor(7);
+                setColor(COLOR_BLANCO);
                 break;
             }
         }
@@ -256,12 +276,6 @@ void num_incluido(int *input, int *numObjetivo, int *posicion){
     
 }
 
-/* 
-for (int i = 0; i < 5&&otras_pos[i]>=0; i++)
-    {
-        
-    }
-    */
 
 //--------------------------------IMPRESION ARREGLO NUMERO (LLAMADA POR juego_principal)----------------------------
 void impresion_arreglo_numero(int *arregloNum){
@@ -313,12 +327,15 @@ void impresion_ranking(struct Jugador *leaderboard){
     printf("\n\t----- RANKING DE JUGADORES -----\n");
     for (int i = 0; i < JUGADORES_MAX; i++)
     {
-        if (leaderboard[i].nombre != "")
+        if (strcmp(leaderboard[i].nombre,"")!=0)
         {
             printf("%i* - %s (%i intentos)\n",(i+1), leaderboard[i].nombre, leaderboard[i].intentos); 
         }
     }
 }
+
+
+//--------------------------------CAMBIAR COLOR DE LA TERMINAL----------------------------
 void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }

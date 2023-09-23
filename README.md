@@ -22,3 +22,4 @@
 <br>
 <br>
 <u>Descripcion</u>:<br>
+El Programa se encuentra pensado y probado para un entorno windows, ya que este utiliza la libreria "Windows.h" para poner colores en la terminal. El texto azul que dice "//Cheat de numero a adivinar" (en la terminal) esta colocado para facilitar las pruebas (o debugging) del juego aportando la respuesta del numero generado aleatoriamente. El mismo puede ser removido en cualquier momento sin afectar al resto del programa.
