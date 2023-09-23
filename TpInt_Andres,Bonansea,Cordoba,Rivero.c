@@ -2,12 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <windows.h>
 
 //----------------------------CONSTANTES DEFINIDAS---------------------------------
 #define JUGADORES_MAX 10
 #define INTENTOS_MAX 10
 #define CIFRAS_NUM 5
-
+//Colores
+#define COLOR_VERDE 2
+#define COLOR_AMARILLO 14
 //-------------------------------STRUCTS------------------------------
 struct Jugador
 {
@@ -21,8 +24,14 @@ void saludo_e_instrucciones(char nombre[30]);
 void generador_numero_random(int *numeroAdivinar);
 int juego_principal(struct Jugador *jugador);
 void input_y_separar_cifras(int *numeroInput);
+
+void setColor(int color);
+
+//Funciones de acierto
 int acierto_completo(int *numeroAdivinar, int *numeroInput);
 void acierto_parcial(int *numeroAdivinar, int *numeroInput);
+void num_iguales(int *input, int *numObjetivo);
+void num_incluido(int *numObjetivo, int *input, int *posicion);
 
 void impresion_arreglo_numero(int *arregloNum);
 
@@ -86,7 +95,7 @@ int main(){
 void cargar_jugador(struct Jugador *jugador){
     char auxchar[30];
     //Es posible la validacion si se quiere
-    printf("Ingresa tu nombre!:\n");
+    printf("\t\tIngresa tu nombre!:\n");
     scanf(" %[^\n]s",auxchar);
 
     strcpy(jugador->nombre, auxchar);
@@ -95,7 +104,7 @@ void cargar_jugador(struct Jugador *jugador){
 
 //----------------------------------SALUDO E INSTRUCCIONES (LLAMADA POR cargar_jugador)-----------------------------
 void saludo_e_instrucciones(char nombre[30]){
-    printf("\tBienvenido %s\n!", nombre);
+    printf("\t\tBienvenido %s!\n", nombre);
     printf("Tendras %d intentos para poder decifrar un numero de %d cifras ingresando de a %d cifras, buena suerte!\n",INTENTOS_MAX,CIFRAS_NUM,CIFRAS_NUM);
 }
 
@@ -118,9 +127,7 @@ int juego_principal(struct Jugador *jugador){
     do
     {
         input_y_separar_cifras(numeroInput); //Parametros por referencia
-        impresion_arreglo_numero(numeroInput);
 
-        printf("Acierto: %i\n",acierto_completo(numeroInput, numeroAdivinar));
         if (acierto_completo(numeroInput, numeroAdivinar)==0) //Le pego al numero
         {
             printf("\tFelicitaciones, acertaste al numero: ");
@@ -131,10 +138,12 @@ int juego_principal(struct Jugador *jugador){
         }else{ //No le pego al numero todavia
 
             //Aca hay que poner una funcion que diga si acerto a algun numero misma posicion o numero pero en distinta posicion *******
-            //acierto_parcial(numeroAdivinar,numeroInput);
+            acierto_parcial(numeroAdivinar,numeroInput);
+            num_iguales(numeroInput,numeroAdivinar);
 
             jugador->intentos--;
             printf("No era el numero\n");
+            printf("Debugg: ");
             impresion_arreglo_numero(numeroAdivinar);
             printf("\n");
         }
@@ -192,10 +201,67 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 
 //--------------------------------ACIERTO PARCIAL (LLAMADA POR juego_principal)----------------------------
 void acierto_parcial(int *numeroAdivinar, int *numeroInput){
-
+    printf("acierto parcial\n");
     //Aca hay que ver si acerto a algun numero misma posicion o numero pero en distinta posicion
 
 }
+void num_iguales(int *input, int *numObjetivo)
+{
+    int posiciones[5];
+    for (int i = 0; i < 5; i++){
+        posiciones[i] = -1;
+    }
+    impresion_arreglo_numero(input);
+    printf("\n");
+    impresion_arreglo_numero(numObjetivo);
+    printf("\n");
+    for (int i = 0; i < 5; i++)
+    {
+        if (input[i] == numObjetivo[i])
+        {
+            printf("%i es igual a %i \n", input[i], numObjetivo[i] );
+                setColor(COLOR_VERDE);
+                printf("esta correcto:  %d\n",input[i]);
+                setColor(7);
+            
+        }else {if(input[i] != numObjetivo[i]){
+            for (int j = 0; j < 5; j++){ //o es un while?
+                if (posiciones[j] == -1){
+                    posiciones[j] = i;
+                    printf("posicion distinta:%d\n", posiciones[j]);
+                    break;
+                }
+            }
+        }
+        }
+    }
+    num_incluido(input, numObjetivo, posiciones);
+}
+void num_incluido(int *input, int *numObjetivo, int *posicion){
+    int i = 0;
+    while(posicion[i] != -1 && i < 5){
+        printf("entro en num_incluido");
+        for (int j = 0; j < CIFRAS_NUM; j++)
+        {
+            if (posicion[i] == j)
+            {
+                setColor(COLOR_AMARILLO);
+                printf(" que es esto no se %d\n",input[i]);
+                setColor(7);
+                break;
+            }
+        }
+        i++;
+    }
+    
+}
+
+/* 
+for (int i = 0; i < 5&&otras_pos[i]>=0; i++)
+    {
+        
+    }
+    */
 
 //--------------------------------IMPRESION ARREGLO NUMERO (LLAMADA POR juego_principal)----------------------------
 void impresion_arreglo_numero(int *arregloNum){
@@ -252,4 +318,7 @@ void impresion_ranking(struct Jugador *leaderboard){
             printf("%i* - %s (%i intentos)\n",(i+1), leaderboard[i].nombre, leaderboard[i].intentos); 
         }
     }
+}
+void setColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
