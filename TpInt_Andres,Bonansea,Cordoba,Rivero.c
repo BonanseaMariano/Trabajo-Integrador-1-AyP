@@ -302,7 +302,9 @@ void acierto_num_incluido(int *input, int *numObjetivo, int *posicion){
             printf("random: num_ %i pos_ %i   ingresado: num_ %i pos_%i \n", numObjetivo[posicion[i]], posicion[i], input[posicion[g]], posicion[g]);
             if (numObjetivo[posicion[i]] == input[posicion[g]])
             {
-                printf(" el numero %d esta en el numObjetivo\n", input[posicion[g]]);
+                setColor(COLOR_AMARILLO);
+                printf(" el numero %d esta en el numero objetivo\n", input[posicion[g]]);
+                setColor(COLOR_BLANCO);
             }
             g++;
         }
