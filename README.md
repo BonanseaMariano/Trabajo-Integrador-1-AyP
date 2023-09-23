@@ -11,7 +11,7 @@ Trabajo Integrador Nº1<br>
 Alumnos:<br>
 Andres, Ariel Sebastian.<br>
 Bonansea Camaño, Mariano Nicolas.<br>
-Cordoba, Luis.<br>
+Cordoba,Tahiel Luis.<br>
 Rivero, Lucia Jazmin.<br>
 
 
