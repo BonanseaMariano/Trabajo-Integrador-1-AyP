@@ -271,7 +271,6 @@ void acierto_num_iguales(int *input, int *numObjetivo)
         {
             setColor(COLOR_VERDE);
             printf("El digito %d en la posicion %d esta correcto!\n",input[i],(i+1));
-
             setColor(COLOR_BLANCO);
         
         //Almaceno las posiciones que no son correctas
@@ -347,23 +346,36 @@ void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
 
     //Busco la posicion del ranking en donde debo colocar en base a intentos
     for (i = 0; i < JUGADORES_MAX && jugador->intentos>leaderboard[i].intentos; i++);
-    
-    //Si se encuentra dentro de las primeras 10 posiciones acomodo a los demas para ponerlo
+
+    //Si se encuentra dentro de las primeras 10 posiciones en base a intentos analizo en base a tiempo
     if (i<JUGADORES_MAX)
     {
-        //Desplazo a la derecha
-        for (int j = JUGADORES_MAX-1; j > i; j--)
+        //Mientras tengan la misma cantidad de intentos y el tiempo sea mayor
+        while (jugador->intentos==leaderboard[i].intentos && jugador->tiempo>leaderboard[i].tiempo)
         {
-            leaderboard[j].intentos = leaderboard[j-1].intentos;
-            strcpy(leaderboard[j].nombre, leaderboard[j-1].nombre);
-            leaderboard[j].tiempo = leaderboard[j-1].tiempo;
+            //Incremento la posicion
+            i++;
         }
 
-        //Coloco el jugador en la posicion que quedo
-        leaderboard[i].intentos = jugador->intentos;
-        strcpy(leaderboard[i].nombre, jugador->nombre);
-        leaderboard[i].tiempo = jugador->tiempo;
+        //Si se encuentra dentro de las primeras 10 posiciones en base a tiempo acomodo para colocarlo
+        if (i<JUGADORES_MAX)
+        {
+            //Desplazamiento a la derecha
+            for (int j = JUGADORES_MAX-1; j > i; j--)
+            {
+                leaderboard[j].intentos = leaderboard[j-1].intentos;
+                strcpy(leaderboard[j].nombre, leaderboard[j-1].nombre);
+                leaderboard[j].tiempo = leaderboard[j-1].tiempo;
+            }
+
+            //Coloco el jugador en la posicion que quedo
+            leaderboard[i].intentos = jugador->intentos;
+            strcpy(leaderboard[i].nombre, jugador->nombre);
+            leaderboard[i].tiempo = jugador->tiempo;
+        }
     }
+    
+    
     
 }
 
