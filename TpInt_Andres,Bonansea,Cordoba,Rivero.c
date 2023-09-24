@@ -350,10 +350,10 @@ void limpieza_leaderboard(struct Jugador *leaderboard){
 //--------------------------------ACTUALIZAR RANKING (LLAMADA POR main)----------------------------
 void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
     int i;
-    
-    //Busco la posicion del ranking en donde debo colocar
-    for ( i = 0; i < JUGADORES_MAX && jugador->intentos>leaderboard[i].intentos; i++);
 
+    //Busco la posicion del ranking en donde debo colocar en base a intentos
+    for (i = 0; i < JUGADORES_MAX && jugador->intentos>leaderboard[i].intentos; i++);
+    
     //Si se encuentra dentro de las primeras 10 posiciones acomodo a los demas para ponerlo
     if (i<JUGADORES_MAX)
     {
