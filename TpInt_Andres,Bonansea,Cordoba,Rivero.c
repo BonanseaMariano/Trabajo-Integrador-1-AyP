@@ -39,8 +39,9 @@ void input_y_separar_cifras(int *numeroInput);
 
 //Funciones de acierto
 int acierto_completo(int *numeroAdivinar, int *numeroInput);
-void acierto_num_iguales(int *input, int *numObjetivo);
-void acierto_num_incluido(int *numObjetivo, int *input, int *casos);
+void acierto_num_iguales(int *numeroAdivinar, int *numeroInput);
+void acierto_num_incluido(int *numeroAdivinar, int *numeroInput, int *casos);
+void no_acierto_num(int *numeroAdivinar, int *numeroInput);
 
 //Funciones del raking de jugadores
 void limpieza_leaderboard(struct Jugador *leaderboard);
@@ -178,11 +179,19 @@ int juego_principal(struct Jugador *jugador){
             printf("\tX No era el numero, intentos restantes: %d  X\n",jugador->intentos);
             setColor(COLOR_BLANCO);
 
-            acierto_num_iguales(numeroInput,numeroAdivinar);
+            acierto_num_iguales(numeroAdivinar,numeroInput);
+            no_acierto_num(numeroAdivinar,numeroInput);
             
             setColor(COLOR_CELESTE);
-            printf("\n//Cheat de numero a adivinar: ");
+
+            //Impresion de ambos numeros para facilitar Debuguing 
+            printf("\n\n\t---- Debug (NO FORMA PARTE DEL JUEGO) ----\n");
+            printf("Numero a adivinar: ");
             impresion_arreglo_numero(numeroAdivinar);
+            printf("\n");
+            printf("Numero Ingresado:  ");
+            impresion_arreglo_numero(numeroInput);
+            printf("\n\t----------------");
             setColor(COLOR_BLANCO);
             printf("\n");
 
@@ -247,7 +256,7 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 
 
 //--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
-void acierto_num_iguales(int *input, int *numObjetivo)
+void acierto_num_iguales(int *numeroAdivinar, int *numeroInput)
 {
     int casos[CIFRAS_NUM];
     int cont=0;
@@ -257,62 +266,78 @@ void acierto_num_iguales(int *input, int *numObjetivo)
         casos[i] = -1;
     }
 
-    //Impresion de ambos numeros para checkear que lleguen bien a la funcion(Borrar desp)
-    printf("\nDebugg:\n");
-    impresion_arreglo_numero(input);
-    printf("\n");
-    impresion_arreglo_numero(numObjetivo);
-    printf("\n");
-
     for (int i = 0; i < CIFRAS_NUM; i++)
     {
         //Checkeo si hay digitos en posiciones correctas
-        if (input[i] == numObjetivo[i])
+        if (numeroInput[i] == numeroAdivinar[i])
         {
             setColor(COLOR_VERDE);
-            printf("El digito %d en la posicion %d esta correcto!\n",input[i],(i+1));
+            printf("El digito %d en la posicion %d esta correcto!\n",numeroInput[i],(i+1));
             setColor(COLOR_BLANCO);
         
         //Almaceno los digitos que no son exactamente iguales
         }else{
-            casos[cont]=input[i];
+            casos[cont]=numeroInput[i];
             cont++;
         }
     }
-    acierto_num_incluido(input, numObjetivo, casos);
+
+    /*Print de casos para debug (BORRAR DESP)
+    printf("\nCasos:\n");
+    for (int i = 0; i < CIFRAS_NUM; i++){
+        printf("%d|",casos[i]);
+    }
+    printf("\n\n");
+    */
+    acierto_num_incluido(numeroAdivinar, numeroInput, casos);
 }
 
 
-//--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
-void acierto_num_incluido(int *input, int *numObjetivo, int *casos){
-    int i = 0;
-    int ban = 0;
-    //Recorro arreglo de casos que no son exactamente iguales
-    
-    //Comparacion con todo el arreglo
+//--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR acierto_num_iguales)----------------------------
+void acierto_num_incluido(int *numeroAdivinar, int *numeroInput, int *casos){
+    int i;
+    //Recorro todo el numero
     for (int j = 0; j < CIFRAS_NUM; j++)
     {
-        if (input[j] != numObjetivo[j])
+        //Si no se cumple que sean exactamente iguales
+        if (numeroInput[j] != numeroAdivinar[j])
         {
-            ban,i=0;
+            i=0;
+
+            //Recorro arreglo de casos que no son exactamente iguales
             while (i < CIFRAS_NUM && casos[i]!=-1){
-                if (casos[i]==numObjetivo[j])
+                if (casos[i]==numeroAdivinar[j])
                 {
                     setColor(COLOR_AMARILLO);
                     printf("El digito %d forma parte del numero pero en otra posicion\n", casos[i]);
                     setColor(COLOR_BLANCO);
-                    ban=1;
                 }
                 i++;
             }
-            if (ban!=1)
-            {
-                setColor(COLOR_ROJO);
-                printf("El digito %d NO forma parte del numero\n", casos[i]);
-                setColor(COLOR_BLANCO);
-            }
         }
     } 
+}
+
+
+//--------------------------------NO ACIERTO (LLAMADA POR juego_principal)----------------------------
+void no_acierto_num(int *numeroAdivinar, int *numeroInput){
+    int i,j;
+    //Recorro input
+    for (i = 0; i < CIFRAS_NUM; i++)
+    {
+        int elemento = numeroInput[i];
+        j=0;
+        while (elemento!=numeroAdivinar[j] && j<CIFRAS_NUM)
+        {
+            j++;
+        }
+        if (j>=CIFRAS_NUM)
+        {
+            setColor(COLOR_ROJO);
+            printf("El digito %d NO forma parte del numero\n", numeroInput[i]);
+            setColor(COLOR_BLANCO);   
+        }   
+    }
 }
 
 
@@ -371,8 +396,6 @@ void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard){
             leaderboard[i].tiempo = jugador->tiempo;
         }
     }
-    
-    
     
 }
 
