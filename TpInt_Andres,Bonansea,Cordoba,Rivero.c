@@ -17,6 +17,7 @@
 #define COLOR_BLANCO 7
 #define COLOR_CELESTE 11
 #define COLOR_ROJO 12
+#define COLOR_VIOLETA 13
 
 //-------------------------------STRUCTS------------------------------
 struct Jugador
@@ -45,8 +46,8 @@ void no_acierto_num(int *numeroAdivinar, int *numeroInput);
 
 //Funciones del raking de jugadores
 void limpieza_leaderboard(struct Jugador *leaderboard);
-void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard); //Aca va a haber que pasarle como parametros el jugador y el arreglo de jugadores
-void impresion_ranking(struct Jugador *leaderboard);//Aca va a haber que pasarle como parametro el arreglo de jugadores (el parametro esta mal puesto todavia)
+void altualizar_ranking(struct Jugador *jugador,struct Jugador *leaderboard); 
+void impresion_ranking(struct Jugador *leaderboard);
 
 //Funciones extras
 void impresion_arreglo_numero(int *arregloNum);
@@ -58,11 +59,9 @@ void setColor(int color);
 int main(){
     srand(getpid()); //Semilla aleatoria para numero random
     
-    //Cuando fucione para uno hay que hacer un arreglo de jugadores[JUGADORES_MAX] para el leaderboard, y hay que 
-    //tener en cuenta lo de como vamos a acomodar el arreglo cuando entra un puntaje nuevo que debe
-    //desplazar a los otros o no (Parecido al problema que hay con el Ej7Tp2)
-    struct Jugador jugador;
-    struct Jugador leaderboard[JUGADORES_MAX];
+    struct Jugador jugador; //Jugador
+    struct Jugador leaderboard[JUGADORES_MAX]; //Arreglo de jugadores
+    
     limpieza_leaderboard(leaderboard);
 
     int op = 1; // Variable de opcion para saber si quiere jugar denuevo o no
@@ -79,7 +78,7 @@ int main(){
         //Ingreso del jugador
         cargar_jugador(&jugador);
 
-        //Aca el jugador juega y se ve si gano (se carga al ranking si es que su puntaje es sufiente) o no (no se carga al ranking pero si se imprime)
+        //El jugador juega y se ve si gano (se carga al ranking si es que su puntaje es sufiente) o no (no se carga al ranking pero si se imprime)
         if (juego_principal(&jugador) == 1)//Significa que gano
         {
 
@@ -92,7 +91,7 @@ int main(){
         
         setColor(COLOR_AMARILLO);
         printf("\n\t\t---- FIN DE LA PARTIDA ----\n");
-        //Impprimo el ranking
+        //Imprimo el ranking
         impresion_ranking(leaderboard);
         setColor(COLOR_BLANCO);
 
@@ -104,7 +103,10 @@ int main(){
 
     } while (op==1); //Si quiere jugar denuevo itera
 
+    setColor(COLOR_CELESTE);
     printf("\n\n\t---- FIN DEL JUEGO, GRACIAS POR JUGAR! ----\n");
+    setColor(COLOR_BLANCO);
+
     sleep(5);
     return 0;
 }
@@ -176,15 +178,14 @@ int juego_principal(struct Jugador *jugador){
         }else{ //No acerto al numero todavia
             jugador->intentos--;
             setColor(COLOR_ROJO);
-            printf("\tX No era el numero, intentos restantes: %d  X\n",jugador->intentos);
+            printf("\n\tX No era el numero, intentos restantes: %d  X\n",jugador->intentos);
             setColor(COLOR_BLANCO);
 
             acierto_num_iguales(numeroAdivinar,numeroInput);
             no_acierto_num(numeroAdivinar,numeroInput);
             
-            setColor(COLOR_CELESTE);
-
-            //Impresion de ambos numeros para facilitar Debuguing 
+            //Impresion de ambos numeros para facilitar Debuging
+            setColor(COLOR_VIOLETA); 
             printf("\n\n\t---- Debug (NO FORMA PARTE DEL JUEGO) ----\n");
             printf("Numero a adivinar: ");
             impresion_arreglo_numero(numeroAdivinar);
@@ -261,18 +262,18 @@ void acierto_num_iguales(int *numeroAdivinar, int *numeroInput)
     int casos[CIFRAS_NUM];
     int cont=0;
 
-    //Inicializo el arreglo de posiciones
+    //Inicializo el arreglo de casos no exactamente iguales
     for (int i = 0; i < CIFRAS_NUM; i++){
         casos[i] = -1;
     }
 
     for (int i = 0; i < CIFRAS_NUM; i++)
     {
-        //Checkeo si hay digitos en posiciones correctas
+        //Chequeo si hay digitos en posiciones correctas
         if (numeroInput[i] == numeroAdivinar[i])
         {
             setColor(COLOR_VERDE);
-            printf("El digito %d en la posicion %d esta correcto!\n",numeroInput[i],(i+1));
+            printf("El digito \"%d\" en la posicion %d esta correcto!\n",numeroInput[i],(i+1));
             setColor(COLOR_BLANCO);
         
         //Almaceno los digitos que no son exactamente iguales
@@ -282,13 +283,6 @@ void acierto_num_iguales(int *numeroAdivinar, int *numeroInput)
         }
     }
 
-    /*Print de casos para debug (BORRAR DESP)
-    printf("\nCasos:\n");
-    for (int i = 0; i < CIFRAS_NUM; i++){
-        printf("%d|",casos[i]);
-    }
-    printf("\n\n");
-    */
     acierto_num_incluido(numeroAdivinar, numeroInput, casos);
 }
 
@@ -296,6 +290,8 @@ void acierto_num_iguales(int *numeroAdivinar, int *numeroInput)
 //--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR acierto_num_iguales)----------------------------
 void acierto_num_incluido(int *numeroAdivinar, int *numeroInput, int *casos){
     int i;
+    int contadorDecimal[]={0,0,0,0,0,0,0,0,0,0}; //Contador decimal para evitar repeticiones de impresion
+
     //Recorro todo el numero
     for (int j = 0; j < CIFRAS_NUM; j++)
     {
@@ -306,11 +302,16 @@ void acierto_num_incluido(int *numeroAdivinar, int *numeroInput, int *casos){
 
             //Recorro arreglo de casos que no son exactamente iguales
             while (i < CIFRAS_NUM && casos[i]!=-1){
+                int elemento = casos[i]; //Variable para facilitar comprension de no repeticiones de impresion
                 if (casos[i]==numeroAdivinar[j])
                 {
-                    setColor(COLOR_AMARILLO);
-                    printf("El digito %d forma parte del numero pero en otra posicion\n", casos[i]);
-                    setColor(COLOR_BLANCO);
+                    if (contadorDecimal[elemento]<1)
+                    {
+                        setColor(COLOR_AMARILLO);
+                        printf("El digito \"%d\" forma parte del numero pero en otra posicion\n", casos[i]);
+                        setColor(COLOR_BLANCO);
+                        contadorDecimal[elemento]++;
+                    }
                 }
                 i++;
             }
@@ -322,10 +323,11 @@ void acierto_num_incluido(int *numeroAdivinar, int *numeroInput, int *casos){
 //--------------------------------NO ACIERTO (LLAMADA POR juego_principal)----------------------------
 void no_acierto_num(int *numeroAdivinar, int *numeroInput){
     int i,j;
+    int contadorDecimal[]={0,0,0,0,0,0,0,0,0,0}; //Contador decimal para evitar repeticiones de impresion
     //Recorro input
     for (i = 0; i < CIFRAS_NUM; i++)
     {
-        int elemento = numeroInput[i];
+        int elemento = numeroInput[i]; //Variable para facilitar comprension de no repeticiones de impresion
         j=0;
         while (elemento!=numeroAdivinar[j] && j<CIFRAS_NUM)
         {
@@ -333,9 +335,13 @@ void no_acierto_num(int *numeroAdivinar, int *numeroInput){
         }
         if (j>=CIFRAS_NUM)
         {
-            setColor(COLOR_ROJO);
-            printf("El digito %d NO forma parte del numero\n", numeroInput[i]);
-            setColor(COLOR_BLANCO);   
+            if (contadorDecimal[elemento]<1)
+            {
+                setColor(COLOR_ROJO);
+                printf("El digito \"%d\" NO forma parte del numero\n", numeroInput[i]);
+                setColor(COLOR_BLANCO);
+                contadorDecimal[elemento]++;
+            }
         }   
     }
 }
@@ -417,3 +423,17 @@ void impresion_ranking(struct Jugador *leaderboard){
 void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
+
+
+
+//----------------------- CREDITOS DEL PROGRAMA --------------------------
+/*
+    Trabajo realizado por alumnos:
+        * Andres, Ariel Sebastian.
+        * Bonansea Camaño, Mariano Nicolas.
+        * Cordoba,Tahiel Luis.
+        * Rivero, Lucia Jazmin.
+    
+    Fecha:
+        29/09/2023.
+*/
