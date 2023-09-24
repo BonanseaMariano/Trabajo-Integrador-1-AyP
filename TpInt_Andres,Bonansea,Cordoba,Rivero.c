@@ -40,7 +40,7 @@ void input_y_separar_cifras(int *numeroInput);
 //Funciones de acierto
 int acierto_completo(int *numeroAdivinar, int *numeroInput);
 void acierto_num_iguales(int *input, int *numObjetivo);
-void acierto_num_incluido(int *numObjetivo, int *input, int *posicion);
+void acierto_num_incluido(int *numObjetivo, int *input, int *casos);
 
 //Funciones del raking de jugadores
 void limpieza_leaderboard(struct Jugador *leaderboard);
@@ -249,12 +249,12 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 //--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
 void acierto_num_iguales(int *input, int *numObjetivo)
 {
-    int posiciones[2][CIFRAS_NUM];
-    
+    int casos[CIFRAS_NUM];
+    int cont=0;
+
     //Inicializo el arreglo de posiciones
     for (int i = 0; i < CIFRAS_NUM; i++){
-        posiciones[0][i] = -1;
-        posiciones[1][i] = -1;
+        casos[i] = -1;
     }
 
     //Impresion de ambos numeros para checkear que lleguen bien a la funcion(Borrar desp)
@@ -273,49 +273,46 @@ void acierto_num_iguales(int *input, int *numObjetivo)
             printf("El digito %d en la posicion %d esta correcto!\n",input[i],(i+1));
             setColor(COLOR_BLANCO);
         
-        //Almaceno las posiciones que no son correctas
+        //Almaceno los digitos que no son exactamente iguales
         }else{
-            if(input[i] != numObjetivo[i]){
-                for (int j = 0; j < CIFRAS_NUM; j++){ //o es un while?
-                    if (posiciones[0][j] == -1){
-                        posiciones[0][j] = i;
-                        posiciones[1][j] = i;
-                        printf("posiciones incorrectas: %d\n", posiciones[1][j]);
-                        break;
-                    }
-                }
-            }
+            casos[cont]=input[i];
+            cont++;
         }
     }
-    //acierto_num_incluido(input, numObjetivo, posiciones);
+    acierto_num_incluido(input, numObjetivo, casos);
 }
 
 
 //--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
-void acierto_num_incluido(int *input, int *numObjetivo, int *posicion){
+void acierto_num_incluido(int *input, int *numObjetivo, int *casos){
     int i = 0;
-    while (posicion[0][&i] > 0 && i < 5)
+    int ban = 0;
+    //Recorro arreglo de casos que no son exactamente iguales
+    
+    //Comparacion con todo el arreglo
+    for (int j = 0; j < CIFRAS_NUM; j++)
     {
-        printf("bucle numero: %i checkeando posicion: %i\n", i + 1, posicion[0][&i]);
-        int g = 0;
-
-        while ((posicion[1][&g] > 0 && g < 5) || posicion[1][&g] == -2)
+        if (input[j] != numObjetivo[j])
         {
-            printf("entra en el bucle\n");
-            if (posicion[1][&g] != -2){
-                printf("random: num_ %i pos_ %i   ingresado: num_ %i pos_%i \n", numObjetivo[posicion[0][&i]], posicion[0][&i], input[posicion[1][&g]], posicion[1][&g]);
+            ban,i=0;
+            while (i < CIFRAS_NUM && casos[i]!=-1){
+                if (casos[i]==numObjetivo[j])
+                {
+                    setColor(COLOR_AMARILLO);
+                    printf("El digito %d forma parte del numero pero en otra posicion\n", casos[i]);
+                    setColor(COLOR_BLANCO);
+                    ban=1;
+                }
+                i++;
             }
-            if (posicion[0][&i] != -2 && numObjetivo[posicion[0][&i]] == input[posicion[1][&g]])
+            if (ban!=1)
             {
-                printf(" el numero %d esta en el numero objetivo\n\n", input[posicion[1][&g]]);
-                posicion[1][&g] = -2;
-                g = 5;
+                setColor(COLOR_ROJO);
+                printf("El digito %d NO forma parte del numero\n", casos[i]);
+                setColor(COLOR_BLANCO);
             }
-            printf("posicion: %i\n", posicion[1][&g]);
-            g++;
         }
-        i++;
-    }  
+    } 
 }
 
 
