@@ -237,11 +237,12 @@ int acierto_completo(int *numeroAdivinar, int *numeroInput){
 //--------------------------------ACIERTO PARCIAL DIGITOS IGUALES (LLAMADA POR juego_principal)----------------------------
 void acierto_num_iguales(int *input, int *numObjetivo)
 {
-    int posiciones[CIFRAS_NUM];
+    int posiciones[2][CIFRAS_NUM];
     
     //Inicializo el arreglo de posiciones
     for (int i = 0; i < CIFRAS_NUM; i++){
-        posiciones[i] = -1;
+        posiciones[0][i] = -1;
+        posiciones[1][i] = -1;
     }
 
     //Impresion de ambos numeros para checkear que lleguen bien a la funcion(Borrar desp)
@@ -265,9 +266,10 @@ void acierto_num_iguales(int *input, int *numObjetivo)
         }else{
             if(input[i] != numObjetivo[i]){
                 for (int j = 0; j < CIFRAS_NUM; j++){ //o es un while?
-                    if (posiciones[j] == -1){
-                        posiciones[j] = i;
-                        printf("posiciones incorrectas: %d\n", posiciones[j]);
+                    if (posiciones[0][j] == -1){
+                        posiciones[0][j] = i;
+                        posiciones[1][j] = i;
+                        printf("posiciones incorrectas: %d\n", posiciones[1][j]);
                         break;
                     }
                 }
@@ -281,36 +283,28 @@ void acierto_num_iguales(int *input, int *numObjetivo)
 //--------------------------------ACIERTO PARCIAL NUMERO IGUAL (LLAMADA POR juego_principal)----------------------------
 void acierto_num_incluido(int *input, int *numObjetivo, int *posicion){
     int i = 0;
-    while(posicion[i] != -1 && i < CIFRAS_NUM){
-        printf("entro en num_incluido bucle %d\n", i+1);
-        // for (int j = 0; j < CIFRAS_NUM; j++)
-        // {
-        //     //Funca mal
-        //     if (posicion[i]  j)
-        //     {
-        //         setColor(COLOR_AMARILLO);
-        //         printf("numero %d correcto posicion incorrecta\n",input[i]);
-        //         setColor(COLOR_BLANCO);
-        //         break;
-        //     }
-        // }
-        printf("bucle numero: %i checkeando posicion: %i\n", i + 1, posicion[i]);
+    while (posicion[0][&i] > 0 && i < 5)
+    {
+        printf("bucle numero: %i checkeando posicion: %i\n", i + 1, posicion[0][&i]);
         int g = 0;
 
-        while (posicion[g] > 0 && g < CIFRAS_NUM)
+        while ((posicion[1][&g] > 0 && g < 5) || posicion[1][&g] == -2)
         {
-            printf("random: num_ %i pos_ %i   ingresado: num_ %i pos_%i \n", numObjetivo[posicion[i]], posicion[i], input[posicion[g]], posicion[g]);
-            if (numObjetivo[posicion[i]] == input[posicion[g]])
-            {
-                setColor(COLOR_AMARILLO);
-                printf(" el numero %d esta en el numero objetivo\n", input[posicion[g]]);
-                setColor(COLOR_BLANCO);
+            printf("entra en el bucle\n");
+            if (posicion[1][&g] != -2){
+                printf("random: num_ %i pos_ %i   ingresado: num_ %i pos_%i \n", numObjetivo[posicion[0][&i]], posicion[0][&i], input[posicion[1][&g]], posicion[1][&g]);
             }
+            if (posicion[0][&i] != -2 && numObjetivo[posicion[0][&i]] == input[posicion[1][&g]])
+            {
+                printf(" el numero %d esta en el numero objetivo\n\n", input[posicion[1][&g]]);
+                posicion[1][&g] = -2;
+                g = 5;
+            }
+            printf("posicion: %i\n", posicion[1][&g]);
             g++;
         }
         i++;
-    }
-    
+    }  
 }
 
 
