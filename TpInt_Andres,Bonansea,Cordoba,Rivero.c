@@ -288,7 +288,7 @@ void acierto_num_iguales(int *input, int *numObjetivo)
             }
         }
     }
-    acierto_num_incluido(input, numObjetivo, posiciones);
+    //acierto_num_incluido(input, numObjetivo, posiciones);
 }
 
 
