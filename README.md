@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="Logo.png" alt="Logo UNPSJB" style="max-width:20%;"/>
-</p>
+<img src="Logo.png" alt="Logo UNPSJB" style="max-width:20%;"/>
 
 <br>
 Licenciatura en Informática<br>
@@ -34,3 +32,14 @@ Aclaraciones:<br>
 * Se asume que el usuario colocara el TIPO de dato correspondiente en cada ingreso de datos (el cual se encuentra aclarado en cada caso) solicitado ya que las validaciones pueden romperse si se coloca otro tipo (por ejemplo en el ingreso de la opcion de jugar nuevamente si se selecciona un numero de opcion distinto de 0 o 1 (si o no) la validacion funciona y vuelve a solicitar el ingreso del usuario, pero si este coloca un string o un char la validacion se rompe). 
 
 * En el ingreso del intento del jugador por adivinar el numero no se permite que el numero comience con ceros (00345 por ejemplo), ya que debido al ingreso de enteros por "scanf()" estos no se consideran como digitos, lo que no permite pasar la validacion de colocar un numero de exactamente 5 cifras. Igualmente cabe aclarar que ningun numero a adivinar generado aleatoriamente inicializara con ceros adelante para solventar este inconveniente. 
+
+* El unico "caso de acierto parcial/no acierto" No contemplado es cuando se colocan dos digitos identicos en el ingreso del jugador (dos "6" en el ejemplo) y uno de ellos coincide en posicion exacta, pero el otro no, y en el numero a adivinar no existe otra aparicion del mismo.<br> 
+En este caso lo unico que se muestra es que el digito esta en la posicion correcta y no se hace referencia al otro digito identico ingresado. Lo consideramos de esta manera ya que sino generaria confusion cuando exista otra aparicion del mismo digito en el numero a adivinar (ver imagen Ejemplo 1 y 2)<br>
+
+Ejemplo 1:<br>
+<img src="Ejemplo_1.jpg" alt="Ejemplo_1" style="max-width:20%;"/><br>
+
+Cabe aclarar que en el caso de que exista otra aparicion del digito identico pero en otra ubicacion ambas se detallaran como es correcto, lo que se muestra a continuacion:<br>
+
+Ejemplo 2:<br>
+<img src="Ejemplo_2.jpg" alt="Ejemplo_2" style="max-width:20%;"/><br>  
